@@ -8,6 +8,9 @@ import com.resume.screener.repository.JobDescriptionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class JobDescriptionService {
 
@@ -32,6 +35,13 @@ public class JobDescriptionService {
         JobDescription jobDescription = jobDescriptionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Job description not found with ID: " + id));
         return mapToDto(jobDescription);
+    }
+
+    @Transactional(readOnly = true)
+    public List<JobDescriptionResponseDto> getAllJobDescriptions() {
+        return jobDescriptionRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     private JobDescriptionResponseDto mapToDto(JobDescription job) {

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -81,5 +82,20 @@ public class JobDescriptionControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Job description must not be blank")));
+    }
+
+    @Test
+    public void testGetAllJobDescriptions_Success() throws Exception {
+        JobDescriptionResponseDto job1 = new JobDescriptionResponseDto(1L, "Software Engineer", "Java", LocalDateTime.now());
+        JobDescriptionResponseDto job2 = new JobDescriptionResponseDto(2L, "QA", "Selenium", LocalDateTime.now());
+
+        when(jobDescriptionService.getAllJobDescriptions()).thenReturn(java.util.List.of(job1, job2));
+
+        mockMvc.perform(get("/api/jobs")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].title").value("Software Engineer"))
+                .andExpect(jsonPath("$[1].title").value("QA"));
     }
 }

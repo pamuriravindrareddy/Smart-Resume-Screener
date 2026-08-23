@@ -76,4 +76,27 @@ public class JobDescriptionServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> jobDescriptionService.getJobDescriptionById(1L));
         verify(jobDescriptionRepository, times(1)).findById(1L);
     }
+
+    @Test
+    public void testGetAllJobDescriptions_Success() {
+        JobDescription job1 = new JobDescription();
+        job1.setId(1L);
+        job1.setTitle("Software Engineer");
+        job1.setDescription("Java, Spring Boot");
+
+        JobDescription job2 = new JobDescription();
+        job2.setId(2L);
+        job2.setTitle("QA Engineer");
+        job2.setDescription("Selenium");
+
+        when(jobDescriptionRepository.findAll()).thenReturn(java.util.List.of(job1, job2));
+
+        java.util.List<JobDescriptionResponseDto> response = jobDescriptionService.getAllJobDescriptions();
+
+        assertNotNull(response);
+        assertEquals(2, response.size());
+        assertEquals("Software Engineer", response.get(0).title());
+        assertEquals("QA Engineer", response.get(1).title());
+        verify(jobDescriptionRepository, times(1)).findAll();
+    }
 }
