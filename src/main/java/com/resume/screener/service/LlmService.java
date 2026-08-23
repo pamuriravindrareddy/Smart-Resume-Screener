@@ -97,16 +97,13 @@ public class LlmService {
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
             // Send request
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity(apiUrl, entity, String.class);
-            String responseBody = responseEntity.getBody();
+            ResponseEntity<JsonNode> responseEntity = restTemplate.postForEntity(apiUrl, entity, JsonNode.class);
+            JsonNode rootNode = responseEntity.getBody();
 
-            if (responseBody == null || responseBody.trim().isEmpty()) {
+            if (rootNode == null) {
                 throw new LlmException("Received empty response from OpenRouter API.");
             }
 
-            // Parse response body
-            JsonNode rootNode = objectMapper.readTree(responseBody);
-            
             // Handle error in OpenRouter response
             if (rootNode.has("error")) {
                 String errorMsg = rootNode.get("error").get("message").asText();
@@ -118,7 +115,22 @@ public class LlmService {
                 throw new LlmException("Invalid response format from OpenRouter API (choices array missing or empty).");
             }
 
-            String content = choicesNode.get(0).get("message").get("content").asText();
+            JsonNode firstChoice = choicesNode.get(0);
+            if (firstChoice == null || !firstChoice.has("message")) {
+                throw new LlmException("Invalid response format from OpenRouter API (message node missing).");
+            }
+
+            JsonNode messageNode = firstChoice.get("message");
+            if (messageNode == null || !messageNode.has("content")) {
+                throw new LlmException("Invalid response format from OpenRouter API (content node missing).");
+            }
+
+            JsonNode contentNode = messageNode.get("content");
+            if (contentNode == null || contentNode.isNull()) {
+                throw new LlmException("Invalid response format from OpenRouter API (content node is null).");
+            }
+
+            String content = contentNode.asText();
             if (content == null || content.trim().isEmpty()) {
                 throw new LlmException("Received empty content inside OpenRouter completion response.");
             }
@@ -226,16 +238,13 @@ public class LlmService {
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
             // Send request
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity(apiUrl, entity, String.class);
-            String responseBody = responseEntity.getBody();
+            ResponseEntity<JsonNode> responseEntity = restTemplate.postForEntity(apiUrl, entity, JsonNode.class);
+            JsonNode rootNode = responseEntity.getBody();
 
-            if (responseBody == null || responseBody.trim().isEmpty()) {
+            if (rootNode == null) {
                 throw new LlmException("Received empty response from OpenRouter API.");
             }
 
-            // Parse response body
-            JsonNode rootNode = objectMapper.readTree(responseBody);
-            
             // Handle error in OpenRouter response
             if (rootNode.has("error")) {
                 String errorMsg = rootNode.get("error").get("message").asText();
@@ -247,7 +256,22 @@ public class LlmService {
                 throw new LlmException("Invalid response format from OpenRouter API (choices array missing or empty).");
             }
 
-            String content = choicesNode.get(0).get("message").get("content").asText();
+            JsonNode firstChoice = choicesNode.get(0);
+            if (firstChoice == null || !firstChoice.has("message")) {
+                throw new LlmException("Invalid response format from OpenRouter API (message node missing).");
+            }
+
+            JsonNode messageNode = firstChoice.get("message");
+            if (messageNode == null || !messageNode.has("content")) {
+                throw new LlmException("Invalid response format from OpenRouter API (content node missing).");
+            }
+
+            JsonNode contentNode = messageNode.get("content");
+            if (contentNode == null || contentNode.isNull()) {
+                throw new LlmException("Invalid response format from OpenRouter API (content node is null).");
+            }
+
+            String content = contentNode.asText();
             if (content == null || content.trim().isEmpty()) {
                 throw new LlmException("Received empty content inside OpenRouter completion response.");
             }
