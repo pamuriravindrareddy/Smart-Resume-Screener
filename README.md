@@ -123,6 +123,137 @@ The application connects to a MySQL database named `smart_resume_screener`. Hibe
 
 ---
 
+## Architecture & LLM Prompts
+
+The Smart Resume Screener application uses a decoupled, service-oriented architecture to pipeline resume ingestion, structural metadata parsing, and semantic suitability evaluations.
+
+### Data & Evaluation Flow Diagram
+The lifecycle of a resume and evaluation runs through the following stages:
+```text
+[Resume Ingestion] 
+       │ (PDF / TXT Upload)
+       ▼
+[Text Ingestion Services] ──► (Apache PDFBox for PDFs / TxtService for TXT)
+       │ (Raw Text Extraction)
+       ▼
+[LlmService: parseResume] ──► (OpenRouter Completion Request with Resume Parser Prompt)
+       │ (Structured JSON Profile Extraction)
+       ▼
+[Candidate Entity Creation] ──► (Saved & Upserted in MySQL `candidates` Table)
+       │ (Candidate ID & Job Description ID)
+       ▼
+[MatchService: matchAndSave]
+       │
+       ├─► [Duplicate Check] ──► (Queries `match_results` for existing Candidate-Job Pair)
+       │         │
+       │         ├─► YES ──► (Returns cached result directly with isDuplicate = true)
+       │         │
+       │         └─► NO  ──► [LlmService: matchCandidateWithJob] ──► (OpenRouter Matching Prompt)
+       │                                 │ (Structured JSON Score & Justification)
+       │                                 ▼
+       │                          [Score & Decision Validation]
+       │                                 │
+       │                                 ▼
+       │                          [MySQL Persistence] ──► (Saved to `match_results`)
+       │                                 │
+       │                                 ▼
+       │                          [MatchResponseDto] ──► (Returns result with isDuplicate = false)
+```
+
+---
+
+### 1. Resume Ingestion & Parsing Prompt
+
+When a resume document is uploaded, its raw text is extracted and passed to the `LlmService.parseResume(String resumeText)` method.
+
+#### System Prompt Template
+```text
+You are an expert resume parsing system. Analyze the raw text of the candidate's resume and extract structured information.
+You must output a valid JSON object matching this schema exactly:
+{
+  "name": "Full Name (default 'Unknown' if not found)",
+  "email": "Email Address (default 'Unknown' if not found)",
+  "phone": "Phone Number (default 'Unknown' if not found)",
+  "skills": ["Skill1", "Skill2", ...],
+  "experience": "Synthesized summary of work experience and companies",
+  "education": "Synthesized summary of degree, institution, graduation year"
+}
+Rules:
+1. Extract only information actually present in the resume. Do not invent information.
+2. If a field is unavailable, use 'Unknown' or an empty array.
+3. Skills should be returned as a clean JSON array of strings.
+4. Return JSON only. Do NOT return Markdown code blocks (like ```json). Do NOT return explanations outside the JSON object.
+```
+
+#### User Prompt Template
+```text
+Resume Text:
+[Raw Extracted Resume Text]
+```
+
+*   **Sent Information**: The system instructions establish the target JSON schema and extraction guidelines. The raw text of the resume is supplied as the user input.
+*   **Expected JSON Response**: A JSON object matching the keys `name`, `email`, `phone`, `skills`, `experience`, and `education`.
+
+---
+
+### 2. Candidate-Job Matching Prompt
+
+When a match is requested, candidate details and the target job description are passed to the `LlmService.matchCandidateWithJob(Candidate candidate, JobDescription jobDescription)` method.
+
+#### System Prompt Template
+```text
+You are an expert recruiter evaluating candidate suitability for a job.
+Analyze the candidate's skills, experience, and education, and compare them with the target Job Title and Job Description.
+You must output a valid JSON object matching this schema exactly:
+{
+  "score": <Integer from 1 to 10>,
+  "decision": "<Either 'SHORTLIST' or 'REJECT'>",
+  "matchedSkills": ["SkillA", "SkillB", ...],
+  "missingSkills": ["SkillC", "SkillD", ...],
+  "justification": "<A concise, evidence-based explanation of why this score and decision was chosen. Mention key strengths and critical missing skills.>"
+}
+Rules:
+1. Only use information actually present in the candidate profile and job description. Do not invent skills, experience, education, or requirements.
+2. The score must be strictly evidence-based from 1 to 10.
+3. matchedSkills must contain only skills actually supported by the candidate that match the job description.
+4. missingSkills must contain important job requirements/skills requested in the job description that are absent from the candidate.
+5. The justification must explicitly explain the main strengths and weaknesses.
+6. Return JSON only. Do NOT return Markdown code blocks (like ```json). Do NOT return explanations outside the JSON object.
+```
+
+#### User Prompt Template
+```text
+Candidate Profile:
+Name: [Candidate Name]
+Skills: [Candidate Skills List]
+Experience: [Candidate Experience Description]
+Education: [Candidate Education Description]
+
+Job Requirements:
+Title: [Job Title]
+Description: [Job Description]
+```
+
+*   **Supplied Information**: Candidate Name, Skills, Experience, and Education, alongside the Job Title and Job Description.
+*   **Evaluation Criteria**: The LLM compares candidate attributes against job parameters, assessing technical skills, depth of experience, and academic relevance.
+*   **Expected JSON Response**:
+    *   `score`: An integer from 1 to 10.
+    *   `decision`: Either `"SHORTLIST"` or `"REJECT"`.
+    *   `matchedSkills`: List of intersecting skills.
+    *   `missingSkills`: List of skills requested in the job description but missing from the candidate.
+    *   `justification`: Detailed recruiter textual explanation.
+
+---
+
+### 3. Prompt Design Decisions
+
+*   **Semantic Matching**: Evaluates overlapping competencies rather than doing strict keyword searches, allowing synonyms or conceptual alignments to be mapped.
+*   **Structured JSON Output**: Enabled via API settings (`"response_format": {"type": "json_object"}`) and strict system prompt guidelines to ensure response consistency.
+*   **Grounding (No Hallucinations)**: System rules strictly instruct the LLM: *"Only use information actually present... Do not invent skills, experience, education, or requirements."* to ensure objectivity.
+*   **Post-processing Guardrails**: The output JSON is sanitized to find the first `{` and last `}` brace to protect against conversational wrappers, and parsed DTO values are programmatically checked to confirm `score` is strictly between `1` and `10` and `decision` is exactly `"SHORTLIST"` or `"REJECT"`, rejecting malformed completion blocks with a `502 Bad Gateway` error.
+
+---
+
 ## Configuration & Environment Variables
 Copy `.env.example` to establish local configurations. The application connects locally using the following properties:
 
