@@ -237,13 +237,24 @@ mvn spring-boot:run
       "matchedSkills": ["Java", "Spring Boot"],
       "missingSkills": ["MySQL"],
       "justification": "Candidate matches core skills. Needs additional database expertise.",
-      "createdAt": "2026-08-22T21:42:00.000"
+      "createdAt": "2026-08-22T21:42:00.000",
+      "isDuplicate": false
     }
     ```
+*   **Duplicate Match Prevention**: If a match result already exists for the candidate + job description combination, the application immediately returns the pre-existing result with `"isDuplicate": true` instead of calling OpenRouter.
 
 ### 7. Get Match Result by ID
 *   **Endpoint**: `GET /api/matches/{id}`
 *   **Expected Status**: `200 OK` or `404 Not Found`
+
+### 8. Get Filtered Match History
+*   **Endpoint**: `GET /api/matches`
+*   **Query Parameters (Optional)**:
+    *   `candidateId`: Filter by Candidate ID (e.g. `?candidateId=1`)
+    *   `jobDescriptionId`: Filter by Job Description ID (e.g. `?jobDescriptionId=2`)
+*   **Expected Status**: `200 OK`
+*   **Response Payload**: Array of match response objects.
+*   **Description**: Used to fetch the list of past match evaluations, supporting optional filtering by candidate or job role. Used to populate the AI Matcher history dashboard.
 
 ---
 

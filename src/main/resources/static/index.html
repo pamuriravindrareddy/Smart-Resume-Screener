@@ -275,6 +275,46 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Match History Section -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-3 gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">AI Evaluation History</h3>
+                        <p class="text-sm text-gray-500">History of all match evaluations and criteria analysis</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <select id="filter-candidate" onchange="loadMatchHistory()" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs border p-2">
+                            <option value="">-- All Candidates --</option>
+                        </select>
+                        <select id="filter-job" onchange="loadMatchHistory()" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs border p-2">
+                            <option value="">-- All Jobs --</option>
+                        </select>
+                        <button onclick="clearHistoryFilters()" class="px-3 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Candidate</th>
+                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Target Job</th>
+                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Score</th>
+                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Decision</th>
+                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Computed Date</th>
+                                <th class="px-6 py-3 text-center font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic history items -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
     </main>
@@ -522,10 +562,16 @@
             }
         }
 
-        // Screener Dropdowns
+        // Screener Dropdowns and local cache mapping
+        let candidatesMap = {};
+        let jobsMap = {};
+        let matchHistoryCache = {};
+
         async function loadScreenerDropdowns() {
             const candSelect = document.getElementById('select-candidate');
             const jobSelect = document.getElementById('select-job');
+            const filterCandSelect = document.getElementById('filter-candidate');
+            const filterJobSelect = document.getElementById('filter-job');
 
             candSelect.innerHTML = `<option value="">-- Loading Candidates --</option>`;
             jobSelect.innerHTML = `<option value="">-- Loading Jobs --</option>`;
@@ -538,15 +584,27 @@
                 const cands = await candRes.json();
                 const jobs = await jobRes.json();
 
+                candidatesMap = {};
+                jobsMap = {};
+
                 candSelect.innerHTML = `<option value="">-- Choose Candidate --</option>`;
+                filterCandSelect.innerHTML = `<option value="">-- All Candidates --</option>`;
                 cands.forEach(c => {
+                    candidatesMap[c.id] = c.name;
                     candSelect.innerHTML += `<option value="${c.id}">${c.name} (${c.email})</option>`;
+                    filterCandSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
                 });
 
                 jobSelect.innerHTML = `<option value="">-- Choose Job --</option>`;
+                filterJobSelect.innerHTML = `<option value="">-- All Jobs --</option>`;
                 jobs.forEach(j => {
+                    jobsMap[j.id] = j.title;
                     jobSelect.innerHTML += `<option value="${j.id}">${j.title}</option>`;
+                    filterJobSelect.innerHTML += `<option value="${j.id}">${j.title}</option>`;
                 });
+
+                // Load initial match history list
+                loadMatchHistory();
 
             } catch (err) {
                 candSelect.innerHTML = `<option value="">-- Error Loading --</option>`;
@@ -581,6 +639,8 @@
                 if (res.status === 201) {
                     const match = await res.json();
                     displayMatchResult(match);
+                    // Reload match history automatically
+                    loadMatchHistory();
                 } else {
                     const error = await res.json();
                     throw new Error(error.message || 'Matching process failed');
@@ -612,6 +672,14 @@
                 badge.className = "px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase bg-red-100 text-red-800 border border-red-200";
             }
 
+            // Cached Match Visual Metadata Tag
+            const meta = document.getElementById('match-meta');
+            if (match.isDuplicate) {
+                meta.innerHTML = `Candidate Match results <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200"><i class="fa-solid fa-database mr-1"></i> Cached Match</span>`;
+            } else {
+                meta.innerHTML = `Candidate Match results <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200"><i class="fa-solid fa-bolt mr-1"></i> Fresh Analysis</span>`;
+            }
+
             // Skills tag lists
             const matchedContainer = document.getElementById('matched-skills-tags');
             matchedContainer.innerHTML = '';
@@ -631,6 +699,85 @@
                 });
             } else {
                 missingContainer.innerHTML = `<span class="text-xs text-gray-400 italic">None identified</span>`;
+            }
+        }
+
+        // Fetch and load evaluation history
+        async function loadMatchHistory() {
+            const candFilter = document.getElementById('filter-candidate').value;
+            const jobFilter = document.getElementById('filter-job').value;
+            const tbody = document.getElementById('history-table-body');
+            
+            let url = '/api/matches';
+            const params = [];
+            if (candFilter) params.push(`candidateId=${candFilter}`);
+            if (jobFilter) params.push(`jobDescriptionId=${jobFilter}`);
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+
+            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading evaluation history...</td></tr>`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No evaluations found in history.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = '';
+                matchHistoryCache = {};
+
+                data.forEach(m => {
+                    matchHistoryCache[m.id] = m;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
+                    
+                    const scoreColor = m.score >= 7 ? 'text-green-600 font-bold' : (m.score >= 5 ? 'text-yellow-600 font-bold' : 'text-red-600 font-bold');
+                    
+                    const decisionBadge = m.decision === 'SHORTLIST' 
+                        ? '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800 border border-green-200">SHORTLIST</span>'
+                        : '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-800 border border-red-200">REJECT</span>';
+                    
+                    const cacheBadge = m.isDuplicate
+                        ? '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">Cached</span>'
+                        : '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">Fresh</span>';
+
+                    const dateStr = new Date(m.createdAt).toLocaleString();
+                    const candName = candidatesMap[m.candidateId] || `Candidate #${m.candidateId}`;
+                    const jobTitle = jobsMap[m.jobDescriptionId] || `Job Opening #${m.jobDescriptionId}`;
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-semibold text-gray-900">${candName}</td>
+                        <td class="px-6 py-4 text-gray-600">${jobTitle}</td>
+                        <td class="px-6 py-4 ${scoreColor}">${m.score} / 10</td>
+                        <td class="px-6 py-4">${decisionBadge}</td>
+                        <td class="px-6 py-4">${cacheBadge}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs font-mono">${dateStr}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="viewHistoryDetail(${m.id})" class="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition text-xs font-medium">
+                                View Report
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Failed to load match history records.</td></tr>`;
+            }
+        }
+
+        function clearHistoryFilters() {
+            document.getElementById('filter-candidate').value = '';
+            document.getElementById('filter-job').value = '';
+            loadMatchHistory();
+        }
+
+        function viewHistoryDetail(matchId) {
+            const match = matchHistoryCache[matchId];
+            if (match) {
+                displayMatchResult(match);
+                document.getElementById('match-result-card').scrollIntoView({ behavior: 'smooth' });
             }
         }
 

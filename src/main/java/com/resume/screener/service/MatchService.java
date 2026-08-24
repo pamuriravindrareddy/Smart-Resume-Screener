@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MatchService {
@@ -46,6 +48,13 @@ public class MatchService {
         JobDescription jobDescription = jobDescriptionRepository.findById(requestDto.jobDescriptionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Job description not found with ID: " + requestDto.jobDescriptionId()));
 
+        // Check for duplicate match
+        Optional<MatchResult> existingMatchOpt = matchResultRepository.findFirstByCandidateIdAndJobDescriptionIdOrderByCreatedAtDesc(
+                requestDto.candidateId(), requestDto.jobDescriptionId());
+        if (existingMatchOpt.isPresent()) {
+            return mapToDto(existingMatchOpt.get(), true);
+        }
+
         // Run LLM semantic matching
         LlmMatchResponse llmResponse = llmService.matchCandidateWithJob(candidate, jobDescription);
 
@@ -71,17 +80,24 @@ public class MatchService {
 
         MatchResult savedResult = matchResultRepository.save(matchResult);
 
-        return mapToDto(savedResult);
+        return mapToDto(savedResult, false);
     }
 
     @Transactional(readOnly = true)
     public MatchResponseDto getMatchById(Long id) {
         MatchResult matchResult = matchResultRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Match result not found with ID: " + id));
-        return mapToDto(matchResult);
+        return mapToDto(matchResult, false);
     }
 
-    private MatchResponseDto mapToDto(MatchResult match) {
+    @Transactional(readOnly = true)
+    public List<MatchResponseDto> getFilteredMatches(Long candidateId, Long jobDescriptionId) {
+        return matchResultRepository.findFiltered(candidateId, jobDescriptionId).stream()
+                .map(match -> mapToDto(match, false))
+                .collect(Collectors.toList());
+    }
+
+    private MatchResponseDto mapToDto(MatchResult match, boolean isDuplicate) {
         List<String> matchedSkillsList = List.of();
         List<String> missingSkillsList = List.of();
         try {
@@ -106,7 +122,8 @@ public class MatchService {
                 matchedSkillsList,
                 missingSkillsList,
                 match.getJustification(),
-                match.getCreatedAt()
+                match.getCreatedAt(),
+                isDuplicate
         );
     }
 }

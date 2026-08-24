@@ -12,5 +12,6 @@ public record MatchResponseDto(
     List<String> matchedSkills,
     List<String> missingSkills,
     String justification,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Boolean isDuplicate
 ) {}

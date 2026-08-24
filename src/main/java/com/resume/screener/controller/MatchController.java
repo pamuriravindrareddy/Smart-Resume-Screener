@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/matches")
 public class MatchController {
@@ -27,6 +29,14 @@ public class MatchController {
     @GetMapping("/{id}")
     public ResponseEntity<MatchResponseDto> getMatchById(@PathVariable("id") Long id) {
         MatchResponseDto response = matchService.getMatchById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MatchResponseDto>> getFilteredMatches(
+            @RequestParam(value = "candidateId", required = false) Long candidateId,
+            @RequestParam(value = "jobDescriptionId", required = false) Long jobDescriptionId) {
+        List<MatchResponseDto> response = matchService.getFilteredMatches(candidateId, jobDescriptionId);
         return ResponseEntity.ok(response);
     }
 }

@@ -79,6 +79,7 @@ public class MatchServiceTest {
 
         when(candidateRepository.findById(1L)).thenReturn(Optional.of(candidate));
         when(jobDescriptionRepository.findById(2L)).thenReturn(Optional.of(jobDescription));
+        when(matchResultRepository.findFirstByCandidateIdAndJobDescriptionIdOrderByCreatedAtDesc(1L, 2L)).thenReturn(Optional.empty());
         when(llmService.matchCandidateWithJob(candidate, jobDescription)).thenReturn(llmResponse);
         when(matchResultRepository.save(any(MatchResult.class))).thenReturn(matchResult);
 
@@ -93,8 +94,40 @@ public class MatchServiceTest {
         assertEquals(List.of("Java", "Spring Boot"), responseDto.matchedSkills());
         assertEquals(List.of("Docker"), responseDto.missingSkills());
         assertEquals("Great match.", responseDto.justification());
+        assertFalse(responseDto.isDuplicate());
 
         verify(matchResultRepository, times(1)).save(any(MatchResult.class));
+    }
+
+    @Test
+    public void testMatchAndSave_DuplicateMatch() {
+        MatchRequestDto requestDto = new MatchRequestDto(1L, 2L);
+
+        MatchResult existingMatch = new MatchResult();
+        existingMatch.setId(20L);
+        existingMatch.setCandidate(candidate);
+        existingMatch.setJobDescription(jobDescription);
+        existingMatch.setScore(9);
+        existingMatch.setDecision("SHORTLIST");
+        existingMatch.setMatchedSkills("[\"Java\"]");
+        existingMatch.setMissingSkills("[\"Docker\"]");
+        existingMatch.setJustification("Cached result justification.");
+        existingMatch.setCreatedAt(LocalDateTime.now().minusHours(1));
+
+        when(candidateRepository.findById(1L)).thenReturn(Optional.of(candidate));
+        when(jobDescriptionRepository.findById(2L)).thenReturn(Optional.of(jobDescription));
+        when(matchResultRepository.findFirstByCandidateIdAndJobDescriptionIdOrderByCreatedAtDesc(1L, 2L)).thenReturn(Optional.of(existingMatch));
+
+        MatchResponseDto responseDto = matchService.matchAndSave(requestDto);
+
+        assertNotNull(responseDto);
+        assertEquals(20L, responseDto.id());
+        assertEquals(9, responseDto.score());
+        assertTrue(responseDto.isDuplicate());
+
+        // Verify that LLM service is NEVER called and no new record is saved
+        verify(llmService, never()).matchCandidateWithJob(any(), any());
+        verify(matchResultRepository, never()).save(any());
     }
 
     @Test
@@ -121,9 +154,34 @@ public class MatchServiceTest {
         MatchRequestDto requestDto = new MatchRequestDto(1L, 2L);
         when(candidateRepository.findById(1L)).thenReturn(Optional.of(candidate));
         when(jobDescriptionRepository.findById(2L)).thenReturn(Optional.of(jobDescription));
+        when(matchResultRepository.findFirstByCandidateIdAndJobDescriptionIdOrderByCreatedAtDesc(1L, 2L)).thenReturn(Optional.empty());
         when(llmService.matchCandidateWithJob(candidate, jobDescription)).thenThrow(new LlmException("LLM failure"));
 
         assertThrows(LlmException.class, () -> matchService.matchAndSave(requestDto));
         verify(matchResultRepository, never()).save(any(MatchResult.class));
+    }
+
+    @Test
+    public void testGetFilteredMatches_Success() {
+        MatchResult match = new MatchResult();
+        match.setId(15L);
+        match.setCandidate(candidate);
+        match.setJobDescription(jobDescription);
+        match.setScore(7);
+        match.setDecision("REJECT");
+        match.setMatchedSkills("[]");
+        match.setMissingSkills("[\"Java\"]");
+        match.setJustification("Missing Java.");
+        match.setCreatedAt(LocalDateTime.now());
+
+        when(matchResultRepository.findFiltered(1L, 2L)).thenReturn(List.of(match));
+
+        List<MatchResponseDto> result = matchService.getFilteredMatches(1L, 2L);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(15L, result.get(0).id());
+        assertEquals(7, result.get(0).score());
+        assertFalse(result.get(0).isDuplicate());
     }
 }
