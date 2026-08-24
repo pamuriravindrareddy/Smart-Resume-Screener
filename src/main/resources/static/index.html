@@ -3,187 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Resume Screener Dashboard</title>
+    <title>Smart Resume Screener - Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
         .active-tab {
-            border-bottom-width: 2px;
-            border-color: #3b82f6;
-            color: #3b82f6;
+            border-bottom-width: 3px;
+            border-color: #4f46e5;
+            color: #4f46e5;
+            font-weight: 700;
+        }
+        .tab-transition {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .circular-gauge {
+            transition: stroke-dashoffset 0.6s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
     <!-- Header Navigation -->
-    <nav class="bg-white shadow-md border-b border-gray-200">
+    <header class="bg-slate-900 text-white shadow-lg border-b border-slate-800 shrink-0 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center space-x-2">
-                        <i class="fa-solid class fa-robot text-blue-600 text-2xl"></i>
-                        <span class="text-xl font-bold text-gray-900 tracking-tight">Smart Resume Screener</span>
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-600 p-2.5 rounded-lg shadow-md flex items-center justify-center">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xl text-white"></i>
                     </div>
-                    <div class="hidden sm:-my-px sm:ml-8 sm:flex sm:space-x-8">
-                        <button onclick="switchTab('dashboard')" id="tab-dashboard-btn" class="active-tab inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 text-gray-900 focus:outline-none transition">
-                            <i class="fa-solid fa-chart-line mr-2"></i> Dashboard
-                        </button>
-                        <button onclick="switchTab('candidates')" id="tab-candidates-btn" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
-                            <i class="fa-solid fa-users-line mr-2"></i> Candidates
-                        </button>
-                        <button onclick="switchTab('jobs')" id="tab-jobs-btn" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
-                            <i class="fa-solid fa-briefcase mr-2"></i> Job Descriptions
-                        </button>
-                        <button onclick="switchTab('screener')" id="tab-screener-btn" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI Matcher
-                        </button>
+                    <div>
+                        <span class="text-lg font-extrabold tracking-tight block">Smart Resume Screener</span>
+                        <span class="text-xxs text-slate-400 font-medium tracking-wider uppercase block">AI-Powered Recruiter Portal</span>
                     </div>
+                </div>
+                <div class="flex space-x-1 sm:space-x-4">
+                    <button onclick="switchTab('dashboard')" id="tab-dashboard-btn" class="active-tab tab-transition px-3 py-2 text-sm font-semibold hover:text-indigo-400 focus:outline-none flex items-center space-x-1.5 border-b-2 border-transparent">
+                        <i class="fa-solid fa-chart-line text-xs"></i> <span>Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('candidates')" id="tab-candidates-btn" class="tab-transition px-3 py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 focus:outline-none flex items-center space-x-1.5 border-b-2 border-transparent">
+                        <i class="fa-solid fa-user-tie text-xs"></i> <span>Candidates</span>
+                    </button>
+                    <button onclick="switchTab('jobs')" id="tab-jobs-btn" class="tab-transition px-3 py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 focus:outline-none flex items-center space-x-1.5 border-b-2 border-transparent">
+                        <i class="fa-solid fa-briefcase text-xs"></i> <span>Job Openings</span>
+                    </button>
+                    <button onclick="switchTab('screener')" id="tab-screener-btn" class="tab-transition px-3 py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 focus:outline-none flex items-center space-x-1.5 border-b-2 border-transparent">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i> <span>AI Matcher</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Container -->
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <main class="flex-grow max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         <!-- TAB: DASHBOARD -->
-        <section id="tab-dashboard" class="space-y-8">
+        <section id="tab-dashboard" class="space-y-8 tab-transition">
             <!-- Stat Cards -->
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-100 p-6 flex items-center space-x-4">
-                    <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
-                        <i class="fa-solid fa-user-tie text-2xl"></i>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <div class="bg-white overflow-hidden shadow-sm hover:shadow-md rounded-xl border border-slate-200 p-6 flex items-center justify-between transition duration-200 group">
+                    <div class="space-y-1">
+                        <dt class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Candidates</dt>
+                        <dd id="stat-candidates" class="text-4xl font-extrabold text-slate-900">0</dd>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Candidates</dt>
-                        <dd id="stat-candidates" class="text-3xl font-semibold text-gray-900">0</dd>
+                    <div class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-115 transition duration-200">
+                        <i class="fa-solid fa-users text-2xl"></i>
                     </div>
                 </div>
-                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-100 p-6 flex items-center space-x-4">
-                    <div class="p-3 bg-indigo-100 text-indigo-600 rounded-full">
+                <div class="bg-white overflow-hidden shadow-sm hover:shadow-md rounded-xl border border-slate-200 p-6 flex items-center justify-between transition duration-200 group">
+                    <div class="space-y-1">
+                        <dt class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Job Openings</dt>
+                        <dd id="stat-jobs" class="text-4xl font-extrabold text-slate-900">0</dd>
+                    </div>
+                    <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-115 transition duration-200">
                         <i class="fa-solid fa-briefcase text-2xl"></i>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Job Openings</dt>
-                        <dd id="stat-jobs" class="text-3xl font-semibold text-gray-900">0</dd>
-                    </div>
                 </div>
-                <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-100 p-6 flex items-center space-x-4">
-                    <div class="p-3 bg-purple-100 text-purple-600 rounded-full">
-                        <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                <div class="bg-white overflow-hidden shadow-sm hover:shadow-md rounded-xl border border-slate-200 p-6 flex items-center justify-between transition duration-200 group">
+                    <div class="space-y-1">
+                        <dt class="text-sm font-semibold text-slate-500 uppercase tracking-wider">AI Matches Run</dt>
+                        <dd id="stat-matches" class="text-4xl font-extrabold text-slate-900">0</dd>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 truncate">AI Matches Run</dt>
-                        <dd id="stat-matches" class="text-3xl font-semibold text-gray-900">Stage 4 Active</dd>
+                    <div class="p-4 bg-violet-50 text-violet-600 rounded-2xl group-hover:scale-115 transition duration-200">
+                        <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Welcome Board -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex flex-col md:flex-row items-center justify-between">
-                <div class="space-y-2 text-center md:text-left">
-                    <h2 class="text-2xl font-bold text-gray-900">Welcome to Smart Resume Screener Dashboard</h2>
-                    <p class="text-gray-500 max-w-xl">Upload resumes, parse candidate profiles, add job descriptions, and evaluate suitability matching instantly using AI.</p>
+            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl shadow-md border border-slate-800 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between text-white space-y-6 md:space-y-0 relative overflow-hidden">
+                <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="space-y-3 text-center md:text-left z-10 max-w-xl">
+                    <h2 class="text-3xl font-extrabold tracking-tight">Welcome back to Recruiter Portal</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">Upload candidate resumes, parse contact profiles using automated LLM processing, define targeted job role criteria, and conduct semantic match suitabilities.</p>
                 </div>
-                <div class="mt-4 md:mt-0 flex space-x-4">
-                    <button onclick="switchTab('candidates')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition">
+                <div class="flex flex-col sm:flex-row gap-4 shrink-0 z-10">
+                    <button onclick="switchTab('candidates')" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-sm font-bold rounded-xl shadow text-white bg-indigo-600 hover:bg-indigo-500 transition duration-200 cursor-pointer">
                         <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Upload Resumes
                     </button>
-                    <button onclick="switchTab('screener')" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-magnifying-glass mr-2"></i> Run AI Matcher
+                    <button onclick="switchTab('screener')" class="inline-flex items-center justify-center px-5 py-3 border border-slate-700 text-sm font-bold rounded-xl text-slate-300 bg-slate-800/80 hover:bg-slate-800 hover:text-white transition duration-200 cursor-pointer">
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i> Compare Matches
                     </button>
                 </div>
             </div>
         </section>
 
         <!-- TAB: CANDIDATES -->
-        <section id="tab-candidates" class="hidden space-y-6">
-            <div class="md:grid md:grid-cols-3 md:gap-6">
+        <section id="tab-candidates" class="hidden space-y-6 tab-transition">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Resume Upload Panel -->
-                <div class="md:col-span-1 space-y-4">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Upload New Resume</h3>
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 mb-4"><i class="fa-solid fa-cloud-arrow-up mr-2 text-indigo-600"></i>Upload Resume</h3>
                         
                         <!-- Drag and Drop Area -->
-                        <div id="drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition cursor-pointer">
-                            <div class="space-y-1 text-center">
-                                <i class="fa-solid fa-cloud-arrow-up text-gray-400 text-3xl mb-2"></i>
-                                <div class="flex text-sm text-gray-600">
-                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                                        <span>Upload a file</span>
+                        <div id="drop-zone" class="flex flex-col justify-center items-center px-6 py-8 border-2 border-slate-300 border-dashed rounded-xl hover:border-indigo-500 hover:bg-indigo-50/20 transition duration-200 cursor-pointer group">
+                            <div class="space-y-2 text-center">
+                                <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 rounded-full w-14 h-14 mx-auto flex items-center justify-center transition duration-200">
+                                    <i class="fa-solid fa-file-pdf text-3xl"></i>
+                                </div>
+                                <div class="text-sm font-medium text-slate-700">
+                                    <label for="file-upload" class="relative cursor-pointer font-bold text-indigo-600 hover:text-indigo-500">
+                                        <span>Click to upload</span>
                                         <input id="file-upload" type="file" accept=".pdf,.txt" class="sr-only">
                                     </label>
-                                    <p class="pl-1">or drag and drop</p>
+                                    <span class="text-slate-500 pl-1">or drag and drop</span>
                                 </div>
-                                <p class="text-xs text-gray-500">PDF or TXT up to 10MB</p>
+                                <p class="text-xs text-slate-400 font-medium">Supports PDF and TXT documents up to 10MB</p>
                             </div>
                         </div>
 
                         <!-- Progress Bar / Spinner -->
-                        <div id="upload-status" class="hidden mt-4 p-3 bg-blue-50 text-blue-700 rounded-md text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i>
-                            <span id="upload-status-text">Uploading and parsing resume with OpenRouter...</span>
+                        <div id="upload-status" class="hidden mt-4 p-4 rounded-xl text-sm flex items-center space-x-3 transition duration-200">
+                            <!-- Spinner icon is inject in JS -->
+                            <div id="upload-status-icon" class="text-lg"></div>
+                            <span id="upload-status-text" class="font-semibold">Parsing...</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Candidates List Panel -->
-                <div class="mt-5 md:mt-0 md:col-span-2">
-                    <div class="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 class="text-lg font-medium text-gray-900">Parsed Candidates</h3>
-                            <button onclick="loadCandidates()" class="p-2 text-gray-400 hover:text-blue-600 transition">
-                                <i class="fa-solid fa-rotate"></i>
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-white shadow-sm border border-slate-200 rounded-2xl overflow-hidden flex flex-col h-full">
+                        <div class="px-6 py-5 border-b border-slate-200 bg-white flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-lg font-bold text-slate-900">Parsed Candidates</h3>
+                                <span id="candidate-count-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                            </div>
+                            <button onclick="loadCandidates()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition duration-200">
+                                <i class="fa-solid fa-rotate text-sm"></i>
                             </button>
                         </div>
-                        <ul id="candidates-list" class="divide-y divide-gray-200">
-                            <!-- Dynamically loaded -->
-                            <li class="px-6 py-4 text-center text-gray-500">No candidates uploaded yet.</li>
-                        </ul>
+                        <div class="flex-grow overflow-y-auto max-h-[500px]">
+                            <ul id="candidates-list" class="divide-y divide-slate-100">
+                                <!-- Dynamic -->
+                            </ul>
+                            <!-- Candidate Empty State -->
+                            <div id="candidate-empty" class="hidden p-12 text-center text-slate-500">
+                                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-user-slash text-2xl"></i>
+                                </div>
+                                <p class="font-bold text-slate-800 mb-1">No Candidates Found</p>
+                                <p class="text-slate-400 text-sm max-w-xs mx-auto">Upload a candidate resume PDF or TXT file on the sidebar to extract profile data.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- TAB: JOB DESCRIPTIONS -->
-        <section id="tab-jobs" class="hidden space-y-6">
-            <div class="md:grid md:grid-cols-3 md:gap-6">
+        <section id="tab-jobs" class="hidden space-y-6 tab-transition">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Create Job Panel -->
-                <div class="md:col-span-1">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Create Job Opening</h3>
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 mb-4"><i class="fa-solid fa-briefcase mr-2 text-indigo-600"></i>Create Job Opening</h3>
                         <form id="job-form" class="space-y-4">
                             <div>
-                                <label for="job-title" class="block text-sm font-medium text-gray-700">Job Title</label>
-                                <input type="text" id="job-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="e.g. Senior Java Developer" required>
+                                <label for="job-title" class="block text-sm font-bold text-slate-700 mb-1">Job Title</label>
+                                <input type="text" id="job-title" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 transition" placeholder="e.g. Senior Java Engineer" required>
                             </div>
                             <div>
-                                <label for="job-desc" class="block text-sm font-medium text-gray-700">Description</label>
-                                <textarea id="job-desc" rows="6" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="Describe the candidate requirements, experience, and skills..." required></textarea>
+                                <label for="job-desc" class="block text-sm font-bold text-slate-700 mb-1">Role Description</label>
+                                <textarea id="job-desc" rows="6" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 transition" placeholder="Describe the candidate requirements, core technologies, and experience..." required></textarea>
                             </div>
-                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition">
-                                Create Job
+                            <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition duration-200 cursor-pointer">
+                                Save Job Opening
                             </button>
                         </form>
-                        <div id="job-status" class="hidden mt-4 p-3 rounded-md text-sm"></div>
+                        <div id="job-status" class="hidden mt-4 p-4 rounded-xl text-sm font-semibold transition"></div>
                     </div>
                 </div>
 
                 <!-- Job List Panel -->
-                <div class="mt-5 md:mt-0 md:col-span-2">
-                    <div class="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 class="text-lg font-medium text-gray-900">Job Descriptions</h3>
-                            <button onclick="loadJobs()" class="p-2 text-gray-400 hover:text-blue-600 transition">
-                                <i class="fa-solid fa-rotate"></i>
+                <div class="lg:col-span-2">
+                    <div class="bg-white shadow-sm border border-slate-200 rounded-2xl overflow-hidden flex flex-col h-full">
+                        <div class="px-6 py-5 border-b border-slate-200 bg-white flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-lg font-bold text-slate-900">Job Descriptions</h3>
+                                <span id="job-count-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                            </div>
+                            <button onclick="loadJobs()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition duration-200">
+                                <i class="fa-solid fa-rotate text-sm"></i>
                             </button>
                         </div>
-                        <div id="jobs-container" class="p-6 grid grid-cols-1 gap-4">
-                            <!-- Dynamically loaded -->
-                            <p class="text-center text-gray-500">No job openings created yet.</p>
+                        <div class="flex-grow overflow-y-auto max-h-[500px]">
+                            <div id="jobs-container" class="p-6 grid grid-cols-1 gap-4">
+                                <!-- Dynamic -->
+                            </div>
+                            <!-- Job Empty State -->
+                            <div id="job-empty" class="hidden p-12 text-center text-slate-500">
+                                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-briefcase text-2xl"></i>
+                                </div>
+                                <p class="font-bold text-slate-800 mb-1">No Jobs Found</p>
+                                <p class="text-slate-400 text-sm max-w-xs mx-auto">Create a new job role using the editor form to begin evaluating candidates.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -191,128 +234,144 @@
         </section>
 
         <!-- TAB: AI SCREENER -->
-        <section id="tab-screener" class="hidden space-y-6">
-            <div class="md:grid md:grid-cols-3 md:gap-6">
+        <section id="tab-screener" class="hidden space-y-8 tab-transition">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Selection Panel -->
-                <div class="md:col-span-1">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Run AI Match Analysis</h3>
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5 relative">
+                        <h3 class="text-lg font-bold text-slate-900 mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-indigo-600"></i>AI Match Configuration</h3>
                         <div>
-                            <label for="select-candidate" class="block text-sm font-medium text-gray-700">Select Candidate</label>
-                            <select id="select-candidate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                            <label for="select-candidate" class="block text-sm font-bold text-slate-700 mb-1">Select Candidate</label>
+                            <select id="select-candidate" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 transition bg-white">
                                 <option value="">-- Choose Candidate --</option>
                             </select>
                         </div>
                         <div>
-                            <label for="select-job" class="block text-sm font-medium text-gray-700">Select Target Job</label>
-                            <select id="select-job" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                            <label for="select-job" class="block text-sm font-bold text-slate-700 mb-1">Select Job Profile</label>
+                            <select id="select-job" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 transition bg-white">
                                 <option value="">-- Choose Job --</option>
                             </select>
                         </div>
-                        <button onclick="runMatchAnalysis()" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Compare & Score
+                        <button id="match-btn" onclick="runMatchAnalysis()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Compare & Analyze Match
                         </button>
 
-                        <div id="match-status" class="hidden p-3 bg-blue-50 text-blue-700 rounded-md text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i>
-                            <span>Analyzing match with OpenRouter...</span>
+                        <div id="match-status" class="hidden p-4 bg-indigo-50 text-indigo-700 rounded-xl text-sm flex items-center space-x-3 transition duration-200">
+                            <i class="fa-solid fa-circle-notch fa-spin text-lg"></i>
+                            <span class="font-semibold">AI evaluation engine running...</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Match Result Panel -->
-                <div class="mt-5 md:mt-0 md:col-span-2">
-                    <div id="match-result-card" class="bg-white shadow-sm border border-gray-200 rounded-lg p-6 space-y-6 hidden">
-                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                <div class="lg:col-span-2">
+                    <div id="match-result-card" class="bg-white shadow-sm border border-slate-200 rounded-2xl p-6 space-y-6 hidden relative overflow-hidden">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-5 gap-4">
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">Evaluation Analysis Report</h3>
-                                <p class="text-sm text-gray-500" id="match-meta">Candidate Match results</p>
+                                <h3 class="text-xl font-extrabold text-slate-900">AI Evaluation Analysis</h3>
+                                <p class="text-xs text-slate-400 font-semibold tracking-wider uppercase mt-0.5" id="match-meta">Candidate Match results</p>
                             </div>
-                            <span id="match-decision-badge" class="px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase">SHORTLIST</span>
+                            <span id="match-decision-badge" class="px-4 py-2 rounded-full text-xs font-extrabold tracking-wider uppercase inline-flex items-center gap-1.5 border">SHORTLIST</span>
                         </div>
 
-                        <!-- Score Gauge -->
-                        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8 bg-gray-50 p-6 rounded-lg">
-                            <div class="relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-blue-500 bg-white shadow-sm">
-                                <span class="text-3xl font-extrabold text-blue-600" id="match-score">8</span>
-                                <span class="text-xs text-gray-400 absolute bottom-2">/ 10</span>
+                        <!-- Score Gauge & Status -->
+                        <div class="flex flex-col sm:flex-row items-center gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <!-- Circular SVG Gauge -->
+                            <div class="relative flex items-center justify-center w-28 h-28 shrink-0">
+                                <svg class="w-full h-full transform -rotate-90">
+                                    <circle cx="56" cy="56" r="46" stroke="#e2e8f0" stroke-width="8" fill="transparent" />
+                                    <circle id="gauge-circle" class="circular-gauge" cx="56" cy="56" r="46" stroke="#4f46e5" stroke-width="8" fill="transparent"
+                                            stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" />
+                                </svg>
+                                <div class="absolute flex flex-col items-center">
+                                    <span class="text-3xl font-black text-slate-800" id="match-score">0</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase mt-[-4px]">Score</span>
+                                </div>
                             </div>
-                            <div class="space-y-1 text-center sm:text-left">
-                                <h4 class="text-lg font-bold text-gray-800">Match score</h4>
-                                <p class="text-sm text-gray-500">Semantic suitability and credential analysis computed by Gemma model.</p>
+                            <div class="space-y-1.5 text-center sm:text-left">
+                                <h4 class="text-lg font-bold text-slate-800">Suitability Match Score</h4>
+                                <p class="text-sm text-slate-500 leading-relaxed">This score indicates candidate alignment computed via structured semantic analysis against core role parameters.</p>
                             </div>
                         </div>
 
                         <!-- Skills Tag Cloud -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="bg-green-50/50 p-4 rounded-lg border border-green-100">
-                                <h5 class="text-sm font-semibold text-green-800 mb-2"><i class="fa-solid fa-circle-check mr-1.5"></i> Matched Skills</h5>
-                                <div id="matched-skills-tags" class="flex flex-wrap gap-1.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="bg-emerald-50/30 p-4 rounded-xl border border-emerald-100">
+                                <h5 class="text-sm font-bold text-emerald-800 mb-3 flex items-center"><i class="fa-solid fa-circle-check mr-2 text-emerald-500"></i> Matched Skills</h5>
+                                <div id="matched-skills-tags" class="flex flex-wrap gap-2">
                                     <!-- Dynamic -->
                                 </div>
                             </div>
-                            <div class="bg-red-50/50 p-4 rounded-lg border border-red-100">
-                                <h5 class="text-sm font-semibold text-red-800 mb-2"><i class="fa-solid fa-circle-xmark mr-1.5"></i> Missing Skills</h5>
-                                <div id="missing-skills-tags" class="flex flex-wrap gap-1.5">
+                            <div class="bg-rose-50/30 p-4 rounded-xl border border-rose-100">
+                                <h5 class="text-sm font-bold text-rose-800 mb-3 flex items-center"><i class="fa-solid fa-circle-xmark mr-2 text-rose-500"></i> Missing Skills</h5>
+                                <div id="missing-skills-tags" class="flex flex-wrap gap-2">
                                     <!-- Dynamic -->
                                 </div>
                             </div>
                         </div>
 
                         <!-- Justification Text -->
-                        <div class="space-y-2 border-t border-gray-100 pt-4">
-                            <h5 class="font-bold text-gray-800">Recruiter Justification:</h5>
-                            <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line" id="match-justification">
+                        <div class="space-y-2 border-t border-slate-100 pt-5">
+                            <h5 class="font-bold text-slate-800 flex items-center"><i class="fa-solid fa-quote-left mr-2 text-indigo-500"></i> Recruiter Justification</h5>
+                            <p class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed whitespace-pre-line" id="match-justification">
                                 Justification details...
                             </p>
                         </div>
                     </div>
 
                     <!-- Empty state -->
-                    <div id="match-empty-card" class="bg-white shadow-sm border border-gray-200 rounded-lg p-12 text-center text-gray-500">
-                        <i class="fa-solid fa-wand-magic-sparkles text-gray-300 text-5xl mb-4"></i>
-                        <p class="text-gray-600 font-medium">Select a candidate and a target job opening from the sidebar, then run the match evaluation.</p>
+                    <div id="match-empty-card" class="bg-white shadow-sm border border-slate-200 rounded-2xl p-12 text-center text-slate-500">
+                        <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                        </div>
+                        <p class="font-bold text-slate-800 mb-1">No Evaluation Selected</p>
+                        <p class="text-slate-400 text-sm max-w-sm mx-auto">Select a candidate and target job profile from the sidebar, then run the match evaluation to view AI matching insights.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Match History Section -->
-            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6 space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-3 gap-4">
+            <div class="bg-white shadow-sm border border-slate-200 rounded-2xl p-6 space-y-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-150 pb-4 gap-4">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900">AI Evaluation History</h3>
-                        <p class="text-sm text-gray-500">History of all match evaluations and criteria analysis</p>
+                        <h3 class="text-lg font-bold text-slate-900">AI Evaluation History</h3>
+                        <p class="text-sm text-slate-400">History of all match evaluations and criteria analysis</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <select id="filter-candidate" onchange="loadMatchHistory()" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs border p-2">
+                    <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        <select id="filter-candidate" onchange="loadMatchHistory()" class="rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs border p-2 bg-white">
                             <option value="">-- All Candidates --</option>
                         </select>
-                        <select id="filter-job" onchange="loadMatchHistory()" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs border p-2">
+                        <select id="filter-job" onchange="loadMatchHistory()" class="rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs border p-2 bg-white">
                             <option value="">-- All Jobs --</option>
                         </select>
-                        <button onclick="clearHistoryFilters()" class="px-3 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition">
-                            Clear
+                        <button onclick="clearHistoryFilters()" class="px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer">
+                            Clear Filters
                         </button>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Candidate</th>
-                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Target Job</th>
-                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Score</th>
-                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Decision</th>
-                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Computed Date</th>
-                                <th class="px-6 py-3 text-center font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider text-xs">Candidate</th>
+                                <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider text-xs">Target Job</th>
+                                <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider text-xs">Score</th>
+                                <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider text-xs">Decision</th>
+                                <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider text-xs">Type</th>
+                                <th class="px-6 py-3.5 text-left font-bold text-slate-500 uppercase tracking-wider text-xs">Computed Date</th>
+                                <th class="px-6 py-3.5 text-center font-bold text-slate-500 uppercase tracking-wider text-xs">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
+                        <tbody id="history-table-body" class="bg-white divide-y divide-slate-150">
                             <!-- Dynamic history items -->
                         </tbody>
                     </table>
+                    <!-- Empty Table State -->
+                    <div id="history-empty" class="hidden p-8 text-center text-slate-500 bg-white">
+                        <i class="fa-solid fa-list-check text-slate-300 text-3xl mb-2"></i>
+                        <p class="font-semibold text-slate-700 text-sm">No evaluation history found matching the filters.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -323,47 +382,64 @@
     <div id="detail-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Overlay -->
-            <div onclick="closeModal()" class="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
+            <div onclick="closeModal()" class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-xs" aria-hidden="true"></div>
 
             <!-- Modal Content -->
-            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 border border-gray-200">
-                <div class="flex justify-between items-start border-b border-gray-100 pb-3">
-                    <h3 id="modal-name" class="text-xl font-bold text-gray-900">Candidate Details</h3>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-slate-200">
+                <div class="flex justify-between items-center border-b border-slate-100 px-6 py-4 bg-slate-50">
+                    <div class="flex items-center space-x-2">
+                        <div class="bg-indigo-100 text-indigo-700 p-1.5 rounded-lg">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <h3 id="modal-name" class="text-lg font-bold text-slate-900">Candidate Details</h3>
+                    </div>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1.5 hover:bg-slate-100 rounded-lg transition">
                         <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
-                <div class="mt-4 space-y-4 text-sm text-gray-600">
-                    <div class="grid grid-cols-2 gap-4">
+                
+                <div class="px-6 py-5 space-y-6 text-sm text-slate-600 max-h-[500px] overflow-y-auto">
+                    <!-- Contacts banner -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                         <div>
-                            <span class="block text-xs font-semibold text-gray-400 uppercase">Email</span>
-                            <span id="modal-email" class="text-gray-900 font-medium break-all">john@example.com</span>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Contact</span>
+                            <span id="modal-email" class="text-slate-800 font-semibold break-all text-sm">john@example.com</span>
                         </div>
                         <div>
-                            <span class="block text-xs font-semibold text-gray-400 uppercase">Phone</span>
-                            <span id="modal-phone" class="text-gray-900 font-medium">123-456-7890</span>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone Contact</span>
+                            <span id="modal-phone" class="text-slate-800 font-semibold text-sm">123-456-7890</span>
                         </div>
                     </div>
-                    <div>
-                        <span class="block text-xs font-semibold text-gray-400 uppercase">Skills</span>
-                        <div id="modal-skills" class="flex flex-wrap gap-1.5 mt-1">
+
+                    <!-- Skills -->
+                    <div class="space-y-2">
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Extracted Tech Stack & Skills</span>
+                        <div id="modal-skills" class="flex flex-wrap gap-2">
                             <!-- Dynamic -->
                         </div>
                     </div>
-                    <div>
-                        <span class="block text-xs font-semibold text-gray-400 uppercase">Experience</span>
-                        <p id="modal-experience" class="mt-1 text-gray-700 bg-gray-50 p-3 rounded border whitespace-pre-line leading-relaxed">Experience content...</p>
+
+                    <!-- Experience -->
+                    <div class="space-y-2">
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Professional Experience Summary</span>
+                        <p id="modal-experience" class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-150 whitespace-pre-line leading-relaxed">Experience content...</p>
                     </div>
-                    <div>
-                        <span class="block text-xs font-semibold text-gray-400 uppercase">Education</span>
-                        <p id="modal-education" class="mt-1 text-gray-700 bg-gray-50 p-3 rounded border whitespace-pre-line leading-relaxed font-mono text-xs">Education content...</p>
+
+                    <!-- Education -->
+                    <div class="space-y-2">
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Academic Credentials</span>
+                        <p id="modal-education" class="text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-150 whitespace-pre-line font-mono leading-relaxed">Education content...</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 shrink-0 text-center text-xs text-slate-400 font-medium">
+        Smart Resume Screener Portal &copy; 2026. All rights reserved.
+    </footer>
 
     <!-- Frontend logic scripts -->
     <script>
@@ -372,10 +448,14 @@
             const tabs = ['dashboard', 'candidates', 'jobs', 'screener'];
             tabs.forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}-btn`).classList.remove('active-tab');
+                const btn = document.getElementById(`tab-${t}-btn`);
+                btn.classList.remove('active-tab');
+                btn.classList.add('text-slate-300');
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`tab-${tabId}-btn`).classList.add('active-tab');
+            const activeBtn = document.getElementById(`tab-${tabId}-btn`);
+            activeBtn.classList.add('active-tab');
+            activeBtn.classList.remove('text-slate-300');
 
             // Refresh tab datasets
             if (tabId === 'candidates') {
@@ -392,14 +472,17 @@
         // Stats loading
         async function loadDashboardStats() {
             try {
-                const [candRes, jobRes] = await Promise.all([
+                const [candRes, jobRes, matchRes] = await Promise.all([
                     fetch('/api/candidates'),
-                    fetch('/api/jobs')
+                    fetch('/api/jobs'),
+                    fetch('/api/matches')
                 ]);
                 const cands = await candRes.json();
                 const jobs = await jobRes.json();
+                const matches = await matchRes.json();
                 document.getElementById('stat-candidates').innerText = cands.length;
                 document.getElementById('stat-jobs').innerText = jobs.length;
+                document.getElementById('stat-matches').innerText = matches.length;
             } catch (err) {
                 console.error("Error fetching stats:", err);
             }
@@ -408,38 +491,54 @@
         // Candidates REST fetches
         async function loadCandidates() {
             const list = document.getElementById('candidates-list');
-            list.innerHTML = `<li class="px-6 py-8 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading candidate lists...</li>`;
+            const countBadge = document.getElementById('candidate-count-badge');
+            const emptyState = document.getElementById('candidate-empty');
+            
+            list.innerHTML = `<li class="px-6 py-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2 text-indigo-500"></i>Loading candidate list...</li>`;
+            emptyState.classList.add('hidden');
+
             try {
                 const res = await fetch('/api/candidates');
                 const data = await res.json();
+                countBadge.innerText = data.length;
+
                 if (!data || data.length === 0) {
-                    list.innerHTML = `<li class="px-6 py-8 text-center text-gray-500">No candidates uploaded yet.</li>`;
+                    list.innerHTML = '';
+                    emptyState.classList.remove('hidden');
                     return;
                 }
                 list.innerHTML = '';
                 data.forEach(c => {
                     const li = document.createElement('li');
-                    li.className = "px-6 py-4 hover:bg-gray-50 flex items-center justify-between transition cursor-pointer";
+                    li.className = "px-6 py-4 hover:bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition duration-150 cursor-pointer";
                     li.onclick = () => showCandidateModal(c);
+                    
+                    const skillsSliced = c.skills.slice(0, 3);
+                    const skillsTags = skillsSliced.map(s => `<span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md text-xxs font-bold border border-indigo-100">${s}</span>`).join('');
+                    const skillsMore = c.skills.length > 3 ? `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-xxs font-bold border border-slate-200">+${c.skills.length - 3}</span>` : '';
+
                     li.innerHTML = `
                         <div class="flex items-center space-x-3">
-                            <div class="p-2 bg-blue-50 text-blue-600 rounded-full">
-                                <i class="fa-solid fa-user"></i>
+                            <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
+                                <i class="fa-solid fa-user-tie"></i>
                             </div>
                             <div>
-                                <h4 class="text-sm font-bold text-gray-900">${c.name}</h4>
-                                <p class="text-xs text-gray-400">${c.email} | ${c.phone || 'N/A'}</p>
+                                <h4 class="text-sm font-bold text-slate-900">${c.name}</h4>
+                                <div class="flex flex-wrap gap-1.5 items-center text-xs text-slate-400 mt-0.5 font-medium">
+                                    <span><i class="fa-regular fa-envelope mr-1"></i>${c.email}</span>
+                                    ${c.phone ? `<span>&bull;</span><span><i class="fa-solid fa-phone mr-1"></i>${c.phone}</span>` : ''}
+                                </div>
                             </div>
                         </div>
-                        <div class="flex space-x-1.5">
-                            ${c.skills.slice(0, 3).map(s => `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-semibold">${s}</span>`).join('')}
-                            ${c.skills.length > 3 ? `<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs font-bold">+${c.skills.length - 3}</span>` : ''}
+                        <div class="flex items-center space-x-1.5 self-start sm:self-center">
+                            ${skillsTags}
+                            ${skillsMore}
                         </div>
                     `;
                     list.appendChild(li);
                 });
             } catch (err) {
-                list.innerHTML = `<li class="px-6 py-8 text-center text-red-500">Failed to load candidates.</li>`;
+                list.innerHTML = `<li class="px-6 py-8 text-center text-red-500"><i class="fa-solid fa-circle-exclaim mr-2"></i>Failed to load candidates profiles.</li>`;
             }
         }
 
@@ -447,19 +546,21 @@
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-upload');
         const uploadStatus = document.getElementById('upload-status');
+        const uploadStatusIcon = document.getElementById('upload-status-icon');
+        const uploadStatusText = document.getElementById('upload-status-text');
 
         dropZone.onclick = () => fileInput.click();
 
         dropZone.ondragover = (e) => {
             e.preventDefault();
-            dropZone.classList.add('border-blue-400', 'bg-blue-50/20');
+            dropZone.classList.add('border-indigo-500', 'bg-indigo-50/20');
         };
         dropZone.ondragleave = () => {
-            dropZone.classList.remove('border-blue-400', 'bg-blue-50/20');
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/20');
         };
         dropZone.ondrop = (e) => {
             e.preventDefault();
-            dropZone.classList.remove('border-blue-400', 'bg-blue-50/20');
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/20');
             if (e.dataTransfer.files.length > 0) {
                 handleFileUpload(e.dataTransfer.files[0]);
             }
@@ -474,9 +575,9 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            uploadStatus.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-700');
-            uploadStatus.classList.add('bg-blue-50', 'text-blue-700');
-            uploadStatus.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i><span>Uploading and parsing resume with OpenRouter...</span>`;
+            uploadStatus.className = "mt-4 p-4 rounded-xl text-sm flex items-center space-x-3 transition bg-indigo-50 text-indigo-700 border border-indigo-150";
+            uploadStatusIcon.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>`;
+            uploadStatusText.innerText = `Uploading and parsing resume with OpenRouter...`;
 
             try {
                 const res = await fetch('/api/resumes/upload', {
@@ -485,47 +586,56 @@
                 });
                 if (res.status === 201) {
                     const parsed = await res.json();
-                    uploadStatus.classList.remove('bg-blue-50', 'text-blue-700');
-                    uploadStatus.classList.add('bg-green-50', 'text-green-700');
-                    uploadStatus.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i><span>Successfully parsed candidate: ${parsed.name}!</span>`;
+                    uploadStatus.className = "mt-4 p-4 rounded-xl text-sm flex items-center space-x-3 transition bg-emerald-50 text-emerald-700 border border-emerald-150";
+                    uploadStatusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i>`;
+                    uploadStatusText.innerText = `Successfully parsed candidate: ${parsed.name}!`;
                     loadCandidates();
                 } else {
                     const error = await res.json();
                     throw new Error(error.message || 'Parsing failed');
                 }
             } catch (err) {
-                uploadStatus.classList.remove('bg-blue-50', 'text-blue-700');
-                uploadStatus.classList.add('bg-red-50', 'text-red-700');
-                uploadStatus.innerHTML = `<i class="fa-solid fa-circle-exclaim mr-2"></i><span>Error: ${err.message}</span>`;
+                uploadStatus.className = "mt-4 p-4 rounded-xl text-sm flex items-center space-x-3 transition bg-rose-50 text-rose-700 border border-rose-150";
+                uploadStatusIcon.innerHTML = `<i class="fa-solid fa-circle-exclaim text-lg"></i>`;
+                uploadStatusText.innerText = `Error: ${err.message}`;
             }
         }
 
         // Job list and creation REST logic
         async function loadJobs() {
             const container = document.getElementById('jobs-container');
-            container.innerHTML = `<div class="text-center py-8 text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading job openings...</div>`;
+            const countBadge = document.getElementById('job-count-badge');
+            const emptyState = document.getElementById('job-empty');
+            
+            container.innerHTML = `<div class="text-center py-8 text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2 text-indigo-500"></i>Loading job opening requirements...</div>`;
+            countBadge.innerText = "0";
+            emptyState.classList.add('hidden');
+
             try {
                 const res = await fetch('/api/jobs');
                 const data = await res.json();
+                countBadge.innerText = data.length;
+
                 if (!data || data.length === 0) {
-                    container.innerHTML = `<p class="text-center py-8 text-gray-500">No job openings created yet.</p>`;
+                    container.innerHTML = '';
+                    emptyState.classList.remove('hidden');
                     return;
                 }
                 container.innerHTML = '';
                 data.forEach(job => {
                     const div = document.createElement('div');
-                    div.className = "p-5 border border-gray-200 rounded-lg hover:shadow-md transition bg-white space-y-2";
+                    div.className = "p-5 border border-slate-200 rounded-xl hover:shadow-sm transition bg-white space-y-3";
                     div.innerHTML = `
                         <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-gray-900 text-lg">${job.title}</h4>
-                            <span class="text-xs text-gray-400 font-mono">ID: ${job.id}</span>
+                            <h4 class="font-extrabold text-slate-900 text-base flex items-center"><i class="fa-solid fa-briefcase text-slate-400 mr-2 text-sm"></i>${job.title}</h4>
+                            <span class="text-xxs text-slate-400 font-bold font-mono bg-slate-100 px-2 py-0.5 rounded-md">ID: ${job.id}</span>
                         </div>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">${job.description}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">${job.description}</p>
                     `;
                     container.appendChild(div);
                 });
             } catch (err) {
-                container.innerHTML = `<div class="text-center py-8 text-red-500">Failed to load jobs descriptions.</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-rose-500"><i class="fa-solid fa-circle-exclaim mr-2"></i>Failed to load jobs openings.</div>`;
             }
         }
 
@@ -535,9 +645,8 @@
             const description = document.getElementById('job-desc').value;
             const statusDiv = document.getElementById('job-status');
 
-            statusDiv.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-700');
-            statusDiv.classList.add('bg-blue-50', 'text-blue-700');
-            statusDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving job openings description...`;
+            statusDiv.className = "mt-4 p-4 rounded-xl text-sm font-semibold transition bg-indigo-50 text-indigo-700 border border-indigo-150";
+            statusDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving job description...`;
 
             try {
                 const res = await fetch('/api/jobs', {
@@ -546,8 +655,7 @@
                     body: JSON.stringify({ title, description })
                 });
                 if (res.status === 201) {
-                    statusDiv.classList.remove('bg-blue-50', 'text-blue-700');
-                    statusDiv.classList.add('bg-green-50', 'text-green-700');
+                    statusDiv.className = "mt-4 p-4 rounded-xl text-sm font-semibold transition bg-emerald-50 text-emerald-700 border border-emerald-150";
                     statusDiv.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i>Job Description created successfully!`;
                     document.getElementById('job-form').reset();
                     loadJobs();
@@ -556,8 +664,7 @@
                     throw new Error(error.message || 'Failed to create job');
                 }
             } catch (err) {
-                statusDiv.classList.remove('bg-blue-50', 'text-blue-700');
-                statusDiv.classList.add('bg-red-50', 'text-red-700');
+                statusDiv.className = "mt-4 p-4 rounded-xl text-sm font-semibold transition bg-rose-50 text-rose-700 border border-rose-150";
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-exclaim mr-2"></i>Error: ${err.message}`;
             }
         }
@@ -619,15 +726,21 @@
             const matchStatus = document.getElementById('match-status');
             const resultCard = document.getElementById('match-result-card');
             const emptyCard = document.getElementById('match-empty-card');
+            const matchBtn = document.getElementById('match-btn');
 
             if (!candidateId || !jobDescriptionId) {
-                alert("Please select both a candidate and a job opening description!");
+                alert("Please select both a candidate and a target job profile!");
                 return;
             }
 
             matchStatus.classList.remove('hidden');
             resultCard.classList.add('hidden');
             emptyCard.classList.add('hidden');
+            
+            // Disable button and inputs during processing
+            matchBtn.disabled = true;
+            document.getElementById('select-candidate').disabled = true;
+            document.getElementById('select-job').disabled = true;
 
             try {
                 const res = await fetch('/api/matches', {
@@ -650,6 +763,9 @@
                 emptyCard.classList.remove('hidden');
             } finally {
                 matchStatus.classList.add('hidden');
+                matchBtn.disabled = false;
+                document.getElementById('select-candidate').disabled = false;
+                document.getElementById('select-job').disabled = false;
             }
         }
 
@@ -663,21 +779,33 @@
             document.getElementById('match-score').innerText = match.score;
             document.getElementById('match-justification').innerText = match.justification;
 
+            // Animate score circular gauge
+            const circle = document.getElementById('gauge-circle');
+            const radius = 46;
+            const circumference = 2 * Math.PI * radius; // ~289
+            const offset = circumference - (circumference * (match.score / 10));
+            circle.style.strokeDasharray = circumference;
+            circle.style.strokeDashoffset = offset;
+
             // Decision badge style
             const badge = document.getElementById('match-decision-badge');
             badge.innerText = match.decision;
             if (match.decision === 'SHORTLIST') {
-                badge.className = "px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase bg-green-100 text-green-800 border border-green-200";
+                badge.className = "px-4 py-2 rounded-full text-xs font-black tracking-wider uppercase bg-emerald-100 text-emerald-800 border-emerald-200 flex items-center gap-1.5";
+                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> SHORTLIST`;
+                circle.setAttribute('stroke', '#10b981'); // Emerald color
             } else {
-                badge.className = "px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase bg-red-100 text-red-800 border border-red-200";
+                badge.className = "px-4 py-2 rounded-full text-xs font-black tracking-wider uppercase bg-rose-100 text-rose-800 border-rose-200 flex items-center gap-1.5";
+                badge.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> REJECT`;
+                circle.setAttribute('stroke', '#f43f5e'); // Rose color
             }
 
             // Cached Match Visual Metadata Tag
             const meta = document.getElementById('match-meta');
             if (match.isDuplicate) {
-                meta.innerHTML = `Candidate Match results <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200"><i class="fa-solid fa-database mr-1"></i> Cached Match</span>`;
+                meta.innerHTML = `Candidate Match results <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-150"><i class="fa-solid fa-database mr-1"></i> Cached Match</span>`;
             } else {
-                meta.innerHTML = `Candidate Match results <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200"><i class="fa-solid fa-bolt mr-1"></i> Fresh Analysis</span>`;
+                meta.innerHTML = `Candidate Match results <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200"><i class="fa-solid fa-bolt mr-1"></i> Fresh Analysis</span>`;
             }
 
             // Skills tag lists
@@ -685,20 +813,20 @@
             matchedContainer.innerHTML = '';
             if (match.matchedSkills && match.matchedSkills.length > 0) {
                 match.matchedSkills.forEach(s => {
-                    matchedContainer.innerHTML += `<span class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded font-semibold border border-green-200">${s}</span>`;
+                    matchedContainer.innerHTML += `<span class="bg-emerald-50 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-bold border border-emerald-150">${s}</span>`;
                 });
             } else {
-                matchedContainer.innerHTML = `<span class="text-xs text-gray-400 italic">None identified</span>`;
+                matchedContainer.innerHTML = `<span class="text-xs text-slate-400 italic">None identified</span>`;
             }
 
             const missingContainer = document.getElementById('missing-skills-tags');
             missingContainer.innerHTML = '';
             if (match.missingSkills && match.missingSkills.length > 0) {
                 match.missingSkills.forEach(s => {
-                    missingContainer.innerHTML += `<span class="bg-red-100 text-red-800 text-xs px-2.5 py-1 rounded font-semibold border border-red-200">${s}</span>`;
+                    missingContainer.innerHTML += `<span class="bg-rose-50 text-rose-800 text-xs px-2.5 py-1 rounded-md font-bold border border-rose-150">${s}</span>`;
                 });
             } else {
-                missingContainer.innerHTML = `<span class="text-xs text-gray-400 italic">None identified</span>`;
+                missingContainer.innerHTML = `<span class="text-xs text-slate-400 italic">None identified</span>`;
             }
         }
 
@@ -707,6 +835,7 @@
             const candFilter = document.getElementById('filter-candidate').value;
             const jobFilter = document.getElementById('filter-job').value;
             const tbody = document.getElementById('history-table-body');
+            const historyEmpty = document.getElementById('history-empty');
             
             let url = '/api/matches';
             const params = [];
@@ -716,13 +845,15 @@
                 url += '?' + params.join('&');
             }
 
-            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading evaluation history...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2 text-indigo-500"></i>Loading evaluation history...</td></tr>`;
+            historyEmpty.classList.add('hidden');
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No evaluations found in history.</td></tr>`;
+                    tbody.innerHTML = '';
+                    historyEmpty.classList.remove('hidden');
                     return;
                 }
                 tbody.innerHTML = '';
@@ -731,31 +862,31 @@
                 data.forEach(m => {
                     matchHistoryCache[m.id] = m;
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
+                    tr.className = "hover:bg-slate-50/50 transition duration-150 border-b border-slate-100";
                     
-                    const scoreColor = m.score >= 7 ? 'text-green-600 font-bold' : (m.score >= 5 ? 'text-yellow-600 font-bold' : 'text-red-600 font-bold');
+                    const scoreColor = m.score >= 7 ? 'text-emerald-600 font-extrabold' : (m.score >= 5 ? 'text-amber-500 font-extrabold' : 'text-rose-500 font-extrabold');
                     
                     const decisionBadge = m.decision === 'SHORTLIST' 
-                        ? '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800 border border-green-200">SHORTLIST</span>'
-                        : '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-800 border border-red-200">REJECT</span>';
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xxs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SHORTLIST</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xxs font-bold bg-rose-50 text-rose-700 border border-rose-200">REJECT</span>';
                     
                     const cacheBadge = m.isDuplicate
-                        ? '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">Cached</span>'
-                        : '<span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">Fresh</span>';
+                        ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xxs font-bold bg-blue-50 text-blue-700 border border-blue-200"><i class="fa-solid fa-database text-[8px]"></i> Cached</span>'
+                        : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xxs font-bold bg-slate-50 text-slate-500 border border-slate-200"><i class="fa-solid fa-bolt text-[8px]"></i> Fresh</span>';
 
                     const dateStr = new Date(m.createdAt).toLocaleString();
                     const candName = candidatesMap[m.candidateId] || `Candidate #${m.candidateId}`;
                     const jobTitle = jobsMap[m.jobDescriptionId] || `Job Opening #${m.jobDescriptionId}`;
 
                     tr.innerHTML = `
-                        <td class="px-6 py-4 font-semibold text-gray-900">${candName}</td>
-                        <td class="px-6 py-4 text-gray-600">${jobTitle}</td>
-                        <td class="px-6 py-4 ${scoreColor}">${m.score} / 10</td>
+                        <td class="px-6 py-4 font-bold text-slate-900">${candName}</td>
+                        <td class="px-6 py-4 text-slate-600 font-medium">${jobTitle}</td>
+                        <td class="px-6 py-4 ${scoreColor} font-mono">${m.score} / 10</td>
                         <td class="px-6 py-4">${decisionBadge}</td>
                         <td class="px-6 py-4">${cacheBadge}</td>
-                        <td class="px-6 py-4 text-gray-500 text-xs font-mono">${dateStr}</td>
+                        <td class="px-6 py-4 text-slate-400 text-xs font-mono">${dateStr}</td>
                         <td class="px-6 py-4 text-center">
-                            <button onclick="viewHistoryDetail(${m.id})" class="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition text-xs font-medium">
+                            <button onclick="viewHistoryDetail(${m.id})" class="px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition text-xs font-bold cursor-pointer">
                                 View Report
                             </button>
                         </td>
@@ -763,7 +894,7 @@
                     tbody.appendChild(tr);
                 });
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Failed to load match history records.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-rose-500"><i class="fa-solid fa-circle-exclaim mr-2"></i>Failed to load match history records.</td></tr>`;
             }
         }
 
@@ -787,21 +918,22 @@
             document.getElementById('modal-email').innerText = candidate.email;
             document.getElementById('modal-phone').innerText = candidate.phone || 'N/A';
             document.getElementById('modal-experience').innerText = candidate.experience || 'No experience details available.';
-            document.getElementById('modal-education').innerText = candidate.education || 'No education details available.';
+            document.getElementById('modal-education').innerText = candidate.education || 'No academic credentials available.';
 
             const skillsContainer = document.getElementById('modal-skills');
             skillsContainer.innerHTML = '';
             if (candidate.skills && candidate.skills.length > 0) {
                 candidate.skills.forEach(s => {
-                    skillsContainer.innerHTML += `<span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded font-semibold">${s}</span>`;
+                    skillsContainer.innerHTML += `<span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-md font-bold border border-indigo-100">${s}</span>`;
                 });
             } else {
-                skillsContainer.innerHTML = `<span class="text-xs text-gray-400 italic">None listed</span>`;
+                skillsContainer.innerHTML = `<span class="text-xs text-slate-400 italic">None listed</span>`;
             }
 
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
+        // Modal closer helper
         function closeModal() {
             document.getElementById('detail-modal').classList.add('hidden');
         }
